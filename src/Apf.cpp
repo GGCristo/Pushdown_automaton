@@ -23,7 +23,7 @@ Apf::Apf(std::ifstream& inputF) {
   while (alphabetS >> word) {
     alphabet_.emplace(word);
   }
-  std::stringstream stackAlphabetS(readLine(inputF, "Alphabet"));
+  std::stringstream stackAlphabetS(readLine(inputF, "Stack alphabet"));
   while (stackAlphabetS >> word) {
     stackAlphabet_.emplace(word);
   }
@@ -67,7 +67,7 @@ std::ostream& Apf::show(std::ostream& os) {
   os << "\n6. Transitions\n";
   transitions_.show(os);
   padding = "";
-  os << "\n7. FinalStates\n\t";
+  os << "\n7. Final States\n\t";
   for (const auto& finalState : finalStates_) {
     os << padding << finalState; 
     padding = ", ";

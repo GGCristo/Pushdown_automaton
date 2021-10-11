@@ -1,4 +1,5 @@
 #include "../include/Transition.h"
+#include <iterator>
 #include <tuple>
 
 transition::transition(const std::string& initialState, const std::string& resultingState,
@@ -9,7 +10,7 @@ symbolToConsume_(symbolToConsume), stackSymbolToConsume_(stackSymbolToConsume),
 stackSymbolsToAdd_(stackSymbolsToAdd)
 {}
 
-std::ostream& transition::show(std::ostream& os) {
+std::ostream& transition::show(std::ostream& os) const {
   os << "\t{ " << initialState_ << ", " << symbolToConsume_ << ", " << stackSymbolToConsume_ << ", " << resultingState_ << ", {";
   const char *padding = "";
   for (const auto& stackSymbolToAdd : stackSymbolsToAdd_) {
@@ -19,6 +20,8 @@ std::ostream& transition::show(std::ostream& os) {
   os << "}}\n";
   return os;
 }
+
+////////////////////////////////////////////////////////////////////////////
 
 void transitionMap::insert(std::stringstream line) {
   std::string initialState;
@@ -38,7 +41,26 @@ void transitionMap::insert(std::stringstream line) {
   transition(initialState, resultingState, symbolToConsume, stackSymbolToConsume, stackSymbolsToAdd));
 }
 
-std::ostream& transitionMap::show(std::ostream& os) {
+std::vector<transition> transitionMap::find(const std::string& state,
+const std::string& symbolToConsume, const std::string& stackSymbolToConsume) {
+  auto tuple = std::make_tuple(state, symbolToConsume, stackSymbolToConsume);
+  auto range = transitionMap_.equal_range(tuple);
+  std::vector<transition> posiblesTransitions;
+  posiblesTransitions.reserve(std::distance(range.first, range.second));
+  for (auto it = range.first; it != range.second; it++) {
+    posiblesTransitions.emplace_back(it->second);
+  }
+  // Non-deterministic behaviour
+  tuple = std::make_tuple(state, ".", stackSymbolToConsume);
+  range = transitionMap_.equal_range(tuple);
+  posiblesTransitions.reserve(posiblesTransitions.capacity() + std::distance(range.first, range.second));
+  for (auto it = range.first; it != range.second; it++) {
+    posiblesTransitions.emplace_back(it->second);
+  }
+  return posiblesTransitions;
+}
+
+std::ostream& transitionMap::show(std::ostream& os) const {
   for (auto it = transitionMap_.begin(); it != transitionMap_.end(); it++) {
     it->second.show(os);
   }
