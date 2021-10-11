@@ -19,8 +19,7 @@ int main(int argc, char **argv) {
 void realMain(int argc, char **argv) {
   std::ifstream inputF(argv[1], std::ifstream::in);
   if (inputF.fail()) {
-    std::cerr << "The file could not be opened: " << argv[1] << '\n';
-    throw;
+    throw "The file could not be opened: " + std::string(argv[1]) + '\n';
   }
   Apf Apf_(inputF);
   inputF.close();

@@ -6,7 +6,7 @@ SRC = $(wildcard src/*.cpp)
 OBJS = $(patsubst src/%.cpp, build/%.o, $(SRC))
 HEADER = #Escribe aquí el nombre de las clases o fichero de funciones con template
 HEADER := $(patsubst %, include/%.hpp, $(HEADER))
-CFLAGS = -g -pedantic-errors -Wall -Wextra  -std=c++17 -fsanitize=address -static-libasan
+CFLAGS = -g -pedantic-errors -Wall -Wextra  -std=c++17 -fsanitize=address
 
 .PHONY: all
 all: $(OBJS)

@@ -7,6 +7,8 @@
 #include <ostream>
 #include <fstream>
 
+#include "Transition.h"
+
 class Apf {
   private:
   std::unordered_set<std::string> states_;
@@ -14,13 +16,10 @@ class Apf {
   std::unordered_set<std::string> stackAlphabet_;
   std::string initialState_;
   std::string initialStackSymbol_;
-  std::vector<std::string> transitions_; // Create class
+  transitionMap transitions_;
   std::unordered_set<std::string> finalStates_;
   public:
-  Apf(std::ifstream& inputF);
-  /* Apf(std::vector<std::string> states, std::vector<std::string> alphabet, */
-  /*     std::vector<std::string> stackAlphabet, std::string initialState, std::string initialStackSymbol, */
-  /*     std::vector<std::string> transitions, std::vector<std::string> finalStates); */
+  explicit Apf(std::ifstream& inputF);
   std::ostream& show(std::ostream& os);
 };
 

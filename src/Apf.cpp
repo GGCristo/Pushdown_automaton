@@ -1,6 +1,6 @@
 #include "../include/Apf.h"
 
-std::string readLine(std::ifstream& inputF, std::string expectedToRead) {
+std::string readLine(std::ifstream& inputF, const std::string& expectedToRead) {
   std::string line;
   bool error;
   do { // TODO explore error
@@ -38,57 +38,40 @@ Apf::Apf(std::ifstream& inputF) {
     if (transition[0] == '#') {
       continue;
     }
-    transitions_.push_back(transition);
+    transitions_.insert(std::stringstream(transition));
   }
 }
 
-std::ostream& Apf::show(std::ostream& os) { // TODO Improve
+std::ostream& Apf::show(std::ostream& os) {
   os << "Pushdown automaton (7-tuple)\n";
+  const char *padding = "";
   os << "1. States\n\t";
-  for (auto it = states_.begin(); it != states_.end(); it++) {
-    os << *it << ", ";
+  for (const auto& state : states_) {
+    os << padding << state;
+    padding = ", ";
   }
+  padding = "";
   os << "\n2. Alphabet\n\t";
-  for (auto it = alphabet_.begin(); it != alphabet_.end(); it++) {
-    os << *it << ", ";
+  for (const auto& character : alphabet_) {
+    os << padding << character;
+    padding = ", ";
   }
+  padding = "";
   os << "\n3. StackAlphabet\n\t";
-  for (auto it = alphabet_.begin(); it != alphabet_.end(); it++) {
-    os << *it << ", ";
+  for (const auto& character : stackAlphabet_) {
+    os << padding << character;
+    padding = ", ";
   }
   os << "\n4. InitialState: " << initialState_;
   os << "\n5. InitialStackSymbol: " << initialStackSymbol_;
-  os << "\n6. Transitions\n\t";
-  for (int i = 0; i < transitions_.size(); i++) {
-    os << transitions_[i] << ", ";
-  }
+  os << "\n6. Transitions\n";
+  transitions_.show(os);
+  padding = "";
   os << "\n7. FinalStates\n\t";
-  for (auto it = finalStates_.begin(); it != finalStates_.end(); it++) {
-    os << *it << ", ";
+  for (const auto& finalState : finalStates_) {
+    os << padding << finalState; 
+    padding = ", ";
   }
   os << '\n';
   return os;
 }
-
-/* Apf::Apf(std::vector<std::string> states, std::vector<std::string> alphabet, */
-/* std::vector<std::string> stackAlphabet, std::string initialState, */
-/* std::string initialStackSymbol,std::vector<std::string> transitions, */
-/* std::vector<std::string> finalStates) { */
-/*   for (int i = 0; i < states.size(); i++) { */
-/*     states_.emplace(states[i]); */
-/*   } */
-/*   for (int i = 0; i < alphabet.size(); i++) { */
-/*     alphabet_.emplace(alphabet[i]); */
-/*   } */
-/*   for (int i = 0; i < stackAlphabet.size(); i++) { */
-/*     stackAlphabet_.emplace(stackAlphabet[i]); */
-/*   } */
-/*   initialState_ = initialState; */
-/*   initialStackSymbol_ = initialState; */
-/*   for (int i = 0; i < transitions.size(); i++) { */
-/*     transitions_.emplace_back(transitions[i]); */
-/*   } */
-/*   for (int i = 0; i < finalStates.size(); i++) { */
-/*     finalStates_.emplace(finalStates[i]); */
-/*   } */
-/* } */
