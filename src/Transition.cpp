@@ -2,20 +2,38 @@
 #include <iterator>
 #include <tuple>
 
-transition::transition(const std::string& initialState, const std::string& resultingState,
+transition::transition(int id, const std::string& initialState, const std::string& resultingState,
 const std::string& symbolToConsume, const std::string& stackSymbolToConsume,
 const std::vector<std::string>& stackSymbolsToAdd) :
-initialState_(initialState), resultingState_(resultingState),
+oldState_(initialState), newState_(resultingState),
 symbolToConsume_(symbolToConsume), stackSymbolToConsume_(stackSymbolToConsume),
 stackSymbolsToAdd_(stackSymbolsToAdd)
-{}
+{
+  id_ = id;
+}
+
+int transition::getID() const {
+  return id_;
+}
+
+std::string transition::getNewState() const {
+  return newState_;
+}
+
+std::string transition::getSymbolToConsume() const {
+  return symbolToConsume_;
+}
+
+std::vector<std::string> transition::getStackSymbolsToAdd() const {
+  return stackSymbolsToAdd_;
+}
 
 std::ostream& transition::show(std::ostream& os) const {
-  os << "\t{ " << initialState_ << ", " << symbolToConsume_ << ", " << stackSymbolToConsume_ << ", " << resultingState_ << ", {";
+  os << '\t' << id_ << ". { " << oldState_ << ", " << symbolToConsume_ << ", " << stackSymbolToConsume_ << ", " << newState_ << ", {";
   const char *padding = "";
   for (const auto& stackSymbolToAdd : stackSymbolsToAdd_) {
     os << padding << stackSymbolToAdd;
-    padding = " ,";
+    padding = ", ";
   }
   os << "}}\n";
   return os;
@@ -38,24 +56,22 @@ void transitionMap::insert(std::stringstream line) {
     stackSymbolsToAdd.emplace_back(stackSymbolToAdd);
   }
   transitionMap_.emplace(std::make_tuple(initialState, symbolToConsume, stackSymbolToConsume),
-  transition(initialState, resultingState, symbolToConsume, stackSymbolToConsume, stackSymbolsToAdd));
+  transition(transitionMap_.size() + 1, initialState, resultingState, symbolToConsume, stackSymbolToConsume, stackSymbolsToAdd));
 }
 
-std::vector<transition> transitionMap::find(const std::string& state,
-const std::string& symbolToConsume, const std::string& stackSymbolToConsume) {
+std::queue<transition> transitionMap::find(const std::string& state,
+const std::string& symbolToConsume, const std::string& stackSymbolToConsume) const {
   auto tuple = std::make_tuple(state, symbolToConsume, stackSymbolToConsume);
   auto range = transitionMap_.equal_range(tuple);
-  std::vector<transition> posiblesTransitions;
-  posiblesTransitions.reserve(std::distance(range.first, range.second));
+  std::queue<transition> posiblesTransitions;
   for (auto it = range.first; it != range.second; it++) {
-    posiblesTransitions.emplace_back(it->second);
+    posiblesTransitions.push(it->second);
   }
   // Non-deterministic behaviour
   tuple = std::make_tuple(state, ".", stackSymbolToConsume);
   range = transitionMap_.equal_range(tuple);
-  posiblesTransitions.reserve(posiblesTransitions.capacity() + std::distance(range.first, range.second));
   for (auto it = range.first; it != range.second; it++) {
-    posiblesTransitions.emplace_back(it->second);
+    posiblesTransitions.push(it->second);
   }
   return posiblesTransitions;
 }
