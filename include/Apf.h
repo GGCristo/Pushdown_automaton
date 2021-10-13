@@ -12,8 +12,8 @@
 
 #include "Transition.h"
 
-static bool trace;
-const std::string EPSILON = ".";
+inline bool trace = false;
+const static std::string EPSILON = ".";
 
 class Apf {
   private:
@@ -29,7 +29,7 @@ class Apf {
 
   bool isFinalState(const std::string& currentState) const;
   std::string getSymbol(const std::string& tape) const;
-  static void transit(std::string& state, std::string& tape, std::stack<std::string>& stack, const Transition& result);
+  static std::tuple<std::string, std::string, std::stack<std::string>> transit(const std::string& state, const std::string& tape, const std::stack<std::string>& stack, const Transition& result);
   static void removeSymbol(std::string& from, const std::string& symbolToRemove);
   bool recursiveRun(std::string state, std::string tape, std::stack<std::string> stack);
   static void showTrace(const std::string& state, const std::string& tape, std::stack<std::string> stack, std::queue<Transition> transitions);

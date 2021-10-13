@@ -1,4 +1,5 @@
 #include "../include/Apf.h"
+#include <tuple>
 
 std::string readLine(std::ifstream& inputF, const std::string& expectedToRead) {
   std::string line;
@@ -62,9 +63,9 @@ bool Apf::recursiveRun(std::string state, std::string tape, std::stack<std::stri
     return true;
   }
   while (!posibleTransitions.empty()) {
-    transit(state, tape, stack, posibleTransitions.front());
+    auto newResults = transit(state, tape, stack, posibleTransitions.front());
     posibleTransitions.pop();
-    if (recursiveRun(state, tape, stack)) {
+    if (recursiveRun(std::get<0>(newResults), std::get<1>(newResults), std::get<2>(newResults))) {
       return true;
     }
   }
@@ -85,23 +86,27 @@ void Apf::removeSymbol(std::string& from, const std::string& symbolToRemove) {
   from.erase(pos, symbolToRemove.length());
 }
 
-void Apf::transit(std::string& state, std::string& tape, std::stack<std::string>& stack, const Transition& result) {
+std::tuple<std::string, std::string, std::stack<std::string>> Apf::transit(const std::string& state, const std::string& tape, const std::stack<std::string>& stack, const Transition& result) {
   if (stack.empty()) {
     std::string error = "You have tried to transit when the stack was empty.\n";
     error += "Debug Info: oldstate: " + state + " oldtape " + tape + '\n';
     error += "newstate: " + result.getNewState() + '\n';
     throw error;
   }
-  stack.pop();
-  state = result.getNewState();
-  removeSymbol(tape, result.getSymbolToConsume());
+  std::string newState = state;
+  std::string newTape = tape;
+  std::stack<std::string> newStack(stack);
+  newStack.pop();
+  newState = result.getNewState();
+  removeSymbol(newTape, result.getSymbolToConsume());
   std::vector<std::string> stackSymbolsToAdd = result.getStackSymbolsToAdd();
   for (auto it = stackSymbolsToAdd.rbegin(); it != stackSymbolsToAdd.rend(); it++) {
     if (*it == EPSILON) {
       break;
     }
-    stack.push(*it);
+    newStack.push(*it);
   }
+  return std::make_tuple(newState, newTape, newStack);
 }
 
 std::string Apf::getSymbol(const std::string& tape) const {
