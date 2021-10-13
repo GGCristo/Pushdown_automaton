@@ -12,6 +12,7 @@
 
 #include "Transition.h"
 
+inline bool trace;
 const std::string EPSILON = ".";
 
 class Apf {
@@ -21,20 +22,20 @@ class Apf {
   std::unordered_set<std::string> stackAlphabet_;
   std::string initialState_;
   std::string initialStackSymbol_;
-  transitionMap transitions_;
+  TransitionMap transitions_;
   std::unordered_set<std::string> finalStates_;
 
   std::stack<std::string> stack_;
 
   bool isFinalState(const std::string& currentState) const;
-  std::string getSymbol(const std::string& string) const;
+  std::string getSymbol(const std::string& tape) const;
 
   bool recursiveRun(std::string state, std::string tape, std::stack<std::string> stack);
   public:
   explicit Apf(std::ifstream& inputF);
-  bool run(std::string string);
+  bool run(const std::string& tape);
   std::ostream& show(std::ostream& os);
 };
 
-void transit(std::string& state, std::string& tape, std::stack<std::string>& stack, const transition& result);
-void showTrace(const std::string& state, const std::string& tape, std::stack<std::string> stack, std::queue<transition> transitions);
+void transit(std::string& state, std::string& tape, std::stack<std::string>& stack, const Transition& result);
+void showTrace(const std::string& state, const std::string& tape, std::stack<std::string> stack, std::queue<Transition> transitions);

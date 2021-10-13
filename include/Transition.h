@@ -14,28 +14,28 @@ typedef std::tuple<std::string, std::string, std::string> transitInput;
 // {newState, symbolToConsume, stackSymbolsToAdd}
 /* typedef std::tuple<std::string, std::string, std::vector<std::string>> transitOutput; */
 
-class transition {
+class Transition {
   private:
-  int id_;
+  size_t id_;
   std::string oldState_;
   std::string newState_;
   std::string symbolToConsume_;
   std::string stackSymbolToConsume_;
   std::vector<std::string> stackSymbolsToAdd_;
   public:
-  transition(int, const std::string&, const std::string&, const std::string&, const std::string&, const std::vector<std::string>&);
-  int getID() const;
+  Transition(size_t, std::string, std::string, std::string, std::string, std::vector<std::string>);
+  size_t getID() const;
   std::string getNewState() const;
   std::string getSymbolToConsume() const;
   std::vector<std::string> getStackSymbolsToAdd() const;
   std::ostream& show(std::ostream& os) const;
 };
 
-class transitionMap {
+class TransitionMap {
   private:
-  std::multimap<transitInput, transition> transitionMap_;
+  std::multimap<transitInput, Transition> transitionMap_;
   public:
   void insert(std::stringstream line);
-  std::queue<transition> find(const std::string& state, const std::string& symbolToConsume, const std::string& stackSymbolToConsume) const;
+  std::queue<Transition> find(const std::string& state, const std::string& symbolToConsume, const std::string& stackSymbolToConsume) const;
   std::ostream& show(std::ostream& os) const;
 };

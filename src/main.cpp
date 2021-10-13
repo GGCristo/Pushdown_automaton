@@ -8,6 +8,18 @@
 void realMain(int argc, char **argv);
 
 int main(int argc, char **argv) {
+  if (argc < 2 || argc > 3) {
+    std::cerr << "Incorrect number of flags\n";
+    return -1;
+  }
+  if (argc == 3) {
+    if (std::string("--trace") == argv[2]) {
+      trace = true;
+    } else {
+      std::cerr << "Incorrect argument: " << argv[2] << '\n';
+      return -1;
+    }
+  }
   try {
     realMain(argc, argv);
   } catch (const std::string& ex){
@@ -23,7 +35,7 @@ void realMain(int argc, char **argv) {
   }
   Apf Apf_(inputF);
   inputF.close();
-  Apf_.show(std::cout);
+  /* Apf_.show(std::cout); */
   std::cout << "How many strings are you going to check?\n";
   int numberOfStrings;
   std::string string;

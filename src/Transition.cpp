@@ -2,33 +2,33 @@
 #include <iterator>
 #include <tuple>
 
-transition::transition(int id, const std::string& initialState, const std::string& resultingState,
-const std::string& symbolToConsume, const std::string& stackSymbolToConsume,
-const std::vector<std::string>& stackSymbolsToAdd) :
-oldState_(initialState), newState_(resultingState),
-symbolToConsume_(symbolToConsume), stackSymbolToConsume_(stackSymbolToConsume),
-stackSymbolsToAdd_(stackSymbolsToAdd)
+Transition::Transition(size_t id, std::string initialState, std::string resultingState,
+std::string symbolToConsume, std::string stackSymbolToConsume,
+std::vector<std::string> stackSymbolsToAdd) :
+oldState_(std::move(initialState)), newState_(std::move(resultingState)),
+symbolToConsume_(std::move(symbolToConsume)), stackSymbolToConsume_(std::move(stackSymbolToConsume)),
+stackSymbolsToAdd_(std::move(stackSymbolsToAdd))
 {
   id_ = id;
 }
 
-int transition::getID() const {
+size_t Transition::getID() const {
   return id_;
 }
 
-std::string transition::getNewState() const {
+std::string Transition::getNewState() const {
   return newState_;
 }
 
-std::string transition::getSymbolToConsume() const {
+std::string Transition::getSymbolToConsume() const {
   return symbolToConsume_;
 }
 
-std::vector<std::string> transition::getStackSymbolsToAdd() const {
+std::vector<std::string> Transition::getStackSymbolsToAdd() const {
   return stackSymbolsToAdd_;
 }
 
-std::ostream& transition::show(std::ostream& os) const {
+std::ostream& Transition::show(std::ostream& os) const {
   os << '\t' << id_ << ". { " << oldState_ << ", " << symbolToConsume_ << ", " << stackSymbolToConsume_ << ", " << newState_ << ", {";
   const char *padding = "";
   for (const auto& stackSymbolToAdd : stackSymbolsToAdd_) {
@@ -41,7 +41,7 @@ std::ostream& transition::show(std::ostream& os) const {
 
 ////////////////////////////////////////////////////////////////////////////
 
-void transitionMap::insert(std::stringstream line) {
+void TransitionMap::insert(std::stringstream line) {
   std::string initialState;
   line >> initialState;
   std::string symbolToConsume;
@@ -56,14 +56,14 @@ void transitionMap::insert(std::stringstream line) {
     stackSymbolsToAdd.emplace_back(stackSymbolToAdd);
   }
   transitionMap_.emplace(std::make_tuple(initialState, symbolToConsume, stackSymbolToConsume),
-  transition(transitionMap_.size() + 1, initialState, resultingState, symbolToConsume, stackSymbolToConsume, stackSymbolsToAdd));
+  Transition(transitionMap_.size() + 1, initialState, resultingState, symbolToConsume, stackSymbolToConsume, stackSymbolsToAdd));
 }
 
-std::queue<transition> transitionMap::find(const std::string& state,
+std::queue<Transition> TransitionMap::find(const std::string& state,
 const std::string& symbolToConsume, const std::string& stackSymbolToConsume) const {
   auto tuple = std::make_tuple(state, symbolToConsume, stackSymbolToConsume);
   auto range = transitionMap_.equal_range(tuple);
-  std::queue<transition> posiblesTransitions;
+  std::queue<Transition> posiblesTransitions;
   for (auto it = range.first; it != range.second; it++) {
     posiblesTransitions.push(it->second);
   }
@@ -76,9 +76,9 @@ const std::string& symbolToConsume, const std::string& stackSymbolToConsume) con
   return posiblesTransitions;
 }
 
-std::ostream& transitionMap::show(std::ostream& os) const {
-  for (auto it = transitionMap_.begin(); it != transitionMap_.end(); it++) {
-    it->second.show(os);
+std::ostream& TransitionMap::show(std::ostream& os) const {
+for (const auto& it : transitionMap_) {
+    it.second.show(os);
   }
   return os;
 }

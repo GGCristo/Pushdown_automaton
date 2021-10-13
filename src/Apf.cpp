@@ -44,26 +44,26 @@ Apf::Apf(std::ifstream& inputF) { // TODO check is a correct automaton
   stack_.push(initialStackSymbol_);
 }
 
-bool Apf::run(std::string tape) {
+bool Apf::run(const std::string& tape) {
   std::stack<std::string> stack;
   stack.push(initialStackSymbol_);
-  std::cout << "State\tTape\tStack\tTransitions\n";
+  if (trace) {
+    std::cout << "State\tTape\tStack\tTransitions\n";
+  }
   return recursiveRun(initialState_, tape, stack);
 }
 
 bool Apf::recursiveRun(std::string state, std::string tape, std::stack<std::string> stack) {
-  std::queue<transition> posibleTransitions = transitions_.find(state, getSymbol(tape), stack.top());
-  showTrace(state, tape, stack, posibleTransitions);
-  if (posibleTransitions.empty() || stack.empty()) { // TODO ask this
-    if (isFinalState(state) && tape.empty()) {
-      return true;
-    }
-    return false;
+  std::queue<Transition> posibleTransitions = transitions_.find(state, getSymbol(tape), stack.top());
+  if (trace) {
+    showTrace(state, tape, stack, posibleTransitions);
+  }
+  if (posibleTransitions.empty()) { // TODO ask this
+    return (isFinalState(state) && tape.empty());
   }
   while (!posibleTransitions.empty()) {
-    transition transition = posibleTransitions.front();
+    transit(state, tape, stack, posibleTransitions.front());
     posibleTransitions.pop();
-    transit(state, tape, stack, transition);
     if (recursiveRun(state, tape, stack)) {
       return true;
     }
@@ -85,7 +85,7 @@ void removeSymbol(std::string& from, const std::string& symbolToRemove) {
   from.erase(pos, symbolToRemove.length());
 }
 
-void transit(std::string& state, std::string& tape, std::stack<std::string>& stack, const transition& result) {
+void transit(std::string& state, std::string& tape, std::stack<std::string>& stack, const Transition& result) {
   if (stack.empty()) {
     std::string error = "You have tried to transit when the stack was empty.\n";
     error += "Debug Info: oldstate: " + state + " oldtape " + tape + '\n';
@@ -104,10 +104,10 @@ void transit(std::string& state, std::string& tape, std::stack<std::string>& sta
   }
 }
 
-std::string Apf::getSymbol(const std::string& string) const {
+std::string Apf::getSymbol(const std::string& tape) const {
   std::string symbol;
-  for (int i = 0; i < string.size(); i++) {
-    symbol += string[i];
+  for (char c : tape) {
+    symbol += c;
     if (alphabet_.find(symbol) == alphabet_.end()) {
       symbol.pop_back();
       return symbol;
@@ -117,13 +117,10 @@ std::string Apf::getSymbol(const std::string& string) const {
 }
 
 bool Apf::isFinalState(const std::string& currentState) const {
-  if (finalStates_.find(currentState) != finalStates_.end()) {
-    return true;
-  }
-  return false;
+  return (finalStates_.find(currentState) != finalStates_.end());
 }
 
-void showTrace(const std::string& state, const std::string& tape, std::stack<std::string> stack, std::queue<transition> transitions) {
+void showTrace(const std::string& state, const std::string& tape, std::stack<std::string> stack, std::queue<Transition> transitions) {
   std::cout << state << '\t' << tape << '\t';
   while (!stack.empty()) {
     std::cout << stack.top();
@@ -137,7 +134,7 @@ void showTrace(const std::string& state, const std::string& tape, std::stack<std
   std::cout << '\n';
 }
 
-std::ostream& Apf::show(std::ostream& os) {
+std::ostream& Apf::show(std::ostream& os) { // TODO sort
   os << "Pushdown automaton (7-tuple)\n";
   const char *padding = "";
   os << "1. States\n\t";
