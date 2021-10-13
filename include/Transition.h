@@ -26,6 +26,7 @@ class Transition {
   Transition(size_t, std::string, std::string, std::string, std::string, std::vector<std::string>);
   size_t getID() const;
   std::string getNewState() const;
+  std::string getOldState() const;
   std::string getSymbolToConsume() const;
   std::vector<std::string> getStackSymbolsToAdd() const;
   std::ostream& show(std::ostream& os) const;

@@ -20,6 +20,10 @@ std::string Transition::getNewState() const {
   return newState_;
 }
 
+std::string Transition::getOldState() const {
+  return oldState_;
+}
+
 std::string Transition::getSymbolToConsume() const {
   return symbolToConsume_;
 }

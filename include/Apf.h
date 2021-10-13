@@ -9,6 +9,7 @@
 #include <fstream>
 #include <stack>
 #include <queue>
+#include <tuple>
 
 #include "Transition.h"
 
@@ -27,11 +28,11 @@ class Apf {
 
   std::stack<std::string> stack_;
 
-  bool isFinalState(const std::string& currentState) const;
+  bool recursiveRun(const std::string& state, const std::string& tape, const std::stack<std::string>& stack);
+  inline bool isFinalState(const std::string& currentState) const;
   std::string getSymbol(const std::string& tape) const;
-  static std::tuple<std::string, std::string, std::stack<std::string>> transit(const std::string& state, const std::string& tape, const std::stack<std::string>& stack, const Transition& result);
+  static std::tuple<std::string, std::string, std::stack<std::string>> transit(const std::string& tape, const std::stack<std::string>& stack, const Transition& result);
   static void removeSymbol(std::string& from, const std::string& symbolToRemove);
-  bool recursiveRun(std::string state, std::string tape, std::stack<std::string> stack);
   static void showTrace(const std::string& state, const std::string& tape, std::stack<std::string> stack, std::queue<Transition> transitions);
 
   public:

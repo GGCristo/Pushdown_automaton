@@ -1,5 +1,4 @@
 #include "../include/Apf.h"
-#include <tuple>
 
 std::string readLine(std::ifstream& inputF, const std::string& expectedToRead) {
   std::string line;
@@ -54,7 +53,7 @@ bool Apf::run(const std::string& tape) {
   return recursiveRun(initialState_, tape, stack);
 }
 
-bool Apf::recursiveRun(std::string state, std::string tape, std::stack<std::string> stack) {
+bool Apf::recursiveRun(const std::string& state, const std::string& tape, const std::stack<std::string>& stack) {
   std::queue<Transition> posibleTransitions = transitions_.find(state, getSymbol(tape), stack.top());
   if (trace) {
     showTrace(state, tape, stack, posibleTransitions);
@@ -63,7 +62,7 @@ bool Apf::recursiveRun(std::string state, std::string tape, std::stack<std::stri
     return true;
   }
   while (!posibleTransitions.empty()) {
-    auto newResults = transit(state, tape, stack, posibleTransitions.front());
+    auto newResults = transit(tape, stack, posibleTransitions.front());
     posibleTransitions.pop();
     if (recursiveRun(std::get<0>(newResults), std::get<1>(newResults), std::get<2>(newResults))) {
       return true;
@@ -86,18 +85,17 @@ void Apf::removeSymbol(std::string& from, const std::string& symbolToRemove) {
   from.erase(pos, symbolToRemove.length());
 }
 
-std::tuple<std::string, std::string, std::stack<std::string>> Apf::transit(const std::string& state, const std::string& tape, const std::stack<std::string>& stack, const Transition& result) {
+std::tuple<std::string, std::string, std::stack<std::string>> Apf::transit(const std::string& tape, const std::stack<std::string>& stack, const Transition& result) {
   if (stack.empty()) {
     std::string error = "You have tried to transit when the stack was empty.\n";
-    error += "Debug Info: oldstate: " + state + " oldtape " + tape + '\n';
+    error += "Debug Info: oldstate: " + result.getOldState() + " oldtape " + tape + '\n';
     error += "newstate: " + result.getNewState() + '\n';
     throw error;
   }
-  std::string newState = state;
+  std::string newState = result.getNewState();
   std::string newTape = tape;
   std::stack<std::string> newStack(stack);
   newStack.pop();
-  newState = result.getNewState();
   removeSymbol(newTape, result.getSymbolToConsume());
   std::vector<std::string> stackSymbolsToAdd = result.getStackSymbolsToAdd();
   for (auto it = stackSymbolsToAdd.rbegin(); it != stackSymbolsToAdd.rend(); it++) {
@@ -126,12 +124,20 @@ bool Apf::isFinalState(const std::string& currentState) const {
 }
 
 void Apf::showTrace(const std::string& state, const std::string& tape, std::stack<std::string> stack, std::queue<Transition> transitions) {
-  std::cout << state << '\t' << tape << '\t';
+  std::cout << state << '\t';
+  if (tape.empty()) {
+    std::cout << "-\t";
+  } else {
+    std::cout << tape << '\t';
+  }
   while (!stack.empty()) {
     std::cout << stack.top();
     stack.pop();
   }
   std::cout << '\t';
+  if (transitions.empty()) {
+    std::cout << "No transitions";
+  }
   while (!transitions.empty()) {
     std::cout << transitions.front().getID() << ' ';
     transitions.pop();
