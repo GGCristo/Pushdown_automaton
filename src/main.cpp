@@ -1,3 +1,4 @@
+#include <exception>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -8,28 +9,32 @@
 void realMain(int argc, char **argv);
 
 int main(int argc, char **argv) {
-  if (argc < 2 || argc > 3) {
-    std::cerr << "Incorrect number of flags\n";
-    return -1;
-  }
-  if (argc == 3) {
-    if (std::string("--trace") == argv[2]) {
-      trace = true;
-    } else {
-      std::cerr << "Incorrect argument: " << argv[2] << '\n';
-      return -1;
-    }
-  }
   try {
     realMain(argc, argv);
   } catch (const std::string& ex){
     std::cerr << ex << '\n';
     return -1;
+  } catch(const std::exception &e) {
+    std::cerr << e.what() << '\n';
+    return -1;
+  } catch(...) {
+    std::cerr << "An unkown error ocurred\n";
+    return -1;
   }
 }
 
 void realMain(int argc, char **argv) {
-  std::ifstream inputF(argv[1], std::ifstream::in); // TODO, bad call
+  if (argc < 2 || argc > 3) {
+    throw "Incorrect number of flags\n";
+  }
+  if (argc == 3) {
+    if (std::string("--trace") == argv[2]) {
+      trace = true;
+    } else {
+      throw "Incorrect argument: " + std::string(argv[2]) + '\n';
+    }
+  }
+  std::ifstream inputF(argv[1], std::ifstream::in);
   if (inputF.fail()) {
     throw "The file could not be opened: " + std::string(argv[1]) + '\n';
   }

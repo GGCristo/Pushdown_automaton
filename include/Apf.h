@@ -12,7 +12,7 @@
 
 #include "Transition.h"
 
-inline bool trace;
+static bool trace;
 const std::string EPSILON = ".";
 
 class Apf {
@@ -29,13 +29,15 @@ class Apf {
 
   bool isFinalState(const std::string& currentState) const;
   std::string getSymbol(const std::string& tape) const;
-
+  static void transit(std::string& state, std::string& tape, std::stack<std::string>& stack, const Transition& result);
+  static void removeSymbol(std::string& from, const std::string& symbolToRemove);
   bool recursiveRun(std::string state, std::string tape, std::stack<std::string> stack);
+  static void showTrace(const std::string& state, const std::string& tape, std::stack<std::string> stack, std::queue<Transition> transitions);
+
   public:
   explicit Apf(std::ifstream& inputF);
   bool run(const std::string& tape);
   std::ostream& show(std::ostream& os);
 };
 
-void transit(std::string& state, std::string& tape, std::stack<std::string>& stack, const Transition& result);
-void showTrace(const std::string& state, const std::string& tape, std::stack<std::string> stack, std::queue<Transition> transitions);
+std::string readLine(std::ifstream& inputF, const std::string& expectedToRead);
