@@ -40,7 +40,7 @@ void realMain(int argc, char **argv) {
   }
   Apf Apf_(inputF);
   inputF.close();
-  /* Apf_.show(std::cout); */
+  Apf_.show(std::cout);
   std::cout << "How many strings are you going to check?\n";
   int numberOfStrings;
   std::string string;

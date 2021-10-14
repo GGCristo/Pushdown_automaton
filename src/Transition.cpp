@@ -28,6 +28,10 @@ std::string Transition::getSymbolToConsume() const {
   return symbolToConsume_;
 }
 
+std::string Transition::getStackSymbolsToConsume() const {
+  return stackSymbolToConsume_;
+}
+
 std::vector<std::string> Transition::getStackSymbolsToAdd() const {
   return stackSymbolsToAdd_;
 }
@@ -45,22 +49,8 @@ std::ostream& Transition::show(std::ostream& os) const {
 
 ////////////////////////////////////////////////////////////////////////////
 
-void TransitionMap::insert(std::stringstream line) {
-  std::string initialState;
-  line >> initialState;
-  std::string symbolToConsume;
-  line >> symbolToConsume;
-  std::string stackSymbolToConsume;
-  line >> stackSymbolToConsume;
-  std::string resultingState;
-  line >> resultingState;
-  std::vector<std::string> stackSymbolsToAdd;
-  std::string stackSymbolToAdd;
-  while (line >> stackSymbolToAdd) {
-    stackSymbolsToAdd.emplace_back(stackSymbolToAdd);
-  }
-  transitionMap_.emplace(std::make_tuple(initialState, symbolToConsume, stackSymbolToConsume),
-  Transition(transitionMap_.size() + 1, initialState, resultingState, symbolToConsume, stackSymbolToConsume, stackSymbolsToAdd));
+void TransitionMap::insert(const Transition& transition) {
+  transitionMap_.emplace(std::make_tuple(transition.getOldState(), transition.getSymbolToConsume(), transition.getStackSymbolsToConsume()), transition);
 }
 
 std::queue<Transition> TransitionMap::find(const std::string& state,

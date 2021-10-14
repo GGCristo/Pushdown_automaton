@@ -28,6 +28,7 @@ class Transition {
   std::string getNewState() const;
   std::string getOldState() const;
   std::string getSymbolToConsume() const;
+  std::string getStackSymbolsToConsume() const;
   std::vector<std::string> getStackSymbolsToAdd() const;
   std::ostream& show(std::ostream& os) const;
 };
@@ -36,7 +37,7 @@ class TransitionMap {
   private:
   std::multimap<transitInput, Transition> transitionMap_;
   public:
-  void insert(std::stringstream line);
+  void insert(const Transition& Transition);
   std::queue<Transition> find(const std::string& state, const std::string& symbolToConsume, const std::string& stackSymbolToConsume) const;
   std::ostream& show(std::ostream& os) const;
 };

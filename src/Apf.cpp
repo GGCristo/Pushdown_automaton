@@ -1,4 +1,5 @@
 #include "../include/Apf.h"
+#include <sstream>
 
 std::string readLine(std::ifstream& inputF, const std::string& expectedToRead) {
   std::string line;
@@ -13,7 +14,15 @@ std::string readLine(std::ifstream& inputF, const std::string& expectedToRead) {
   return line;
 }
 
-Apf::Apf(std::ifstream& inputF) { // TODO check is a correct automaton
+Apf::Apf(std::ifstream& inputF) {
+  auto check = [](const std::string& word, const std::unordered_set<std::string>& set) {
+    if (word == EPSILON) {
+      return;
+    }
+    if (set.find(word) == set.end()) {
+      throw word + " doesn't belong to this automaton.\n";
+    }
+  };
   std::string word;
   std::stringstream statesS(readLine(inputF, "States"));
   while (statesS >> word) {
@@ -28,19 +37,43 @@ Apf::Apf(std::ifstream& inputF) { // TODO check is a correct automaton
     stackAlphabet_.emplace(word);
   }
   initialState_ = readLine(inputF, "Initial State");
+  check(initialState_, states_);
   initialStackSymbol_ = readLine(inputF, "Initial Stack state");
+  check(initialStackSymbol_, stackAlphabet_);
   std::stringstream finalStatesS(readLine(inputF, "Final states"));
   while (finalStatesS >> word) {
     finalStates_.emplace(word);
+    check(word, states_);
   }
-  std::string transition;
-  while (std::getline(inputF, transition)) {
-    if (transition[0] == '#') {
+  // Transitions
+  std::string lineString;
+  int transitionID = 1;
+  while (std::getline(inputF, lineString)) {
+    if (lineString[0] == '#') {
       continue;
     }
-    transitions_.insert(std::stringstream(transition));
+    std::stringstream line(lineString);
+    std::string initialState;
+    line >> initialState;
+    check(initialState_, states_);
+    std::string symbolToConsume;
+    line >> symbolToConsume;
+    check(symbolToConsume, alphabet_);
+    std::string stackSymbolToConsume;
+    line >> stackSymbolToConsume;
+    check(stackSymbolToConsume, stackAlphabet_);
+    std::string resultingState;
+    line >> resultingState;
+    check(resultingState, states_);
+    std::vector<std::string> stackSymbolsToAdd;
+    std::string stackSymbolToAdd;
+    while (line >> stackSymbolToAdd) {
+      stackSymbolsToAdd.emplace_back(stackSymbolToAdd);
+      check(stackSymbolToAdd, stackAlphabet_);
+    }
+    transitions_.insert(Transition(transitionID, initialState, resultingState, symbolToConsume, stackSymbolToConsume, stackSymbolsToAdd));
+    transitionID++;
   }
-
   stack_.push(initialStackSymbol_);
 }
 
