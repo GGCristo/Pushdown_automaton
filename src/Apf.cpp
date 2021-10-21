@@ -127,9 +127,9 @@ std::tuple<std::string, std::string, std::stack<std::string>> Apf::transit(const
   }
   std::string newState = result.getNewState();
   std::string newTape = tape;
+  removeSymbol(newTape, result.getSymbolToConsume());
   std::stack<std::string> newStack(stack);
   newStack.pop();
-  removeSymbol(newTape, result.getSymbolToConsume());
   std::vector<std::string> stackSymbolsToAdd = result.getStackSymbolsToAdd();
   for (auto it = stackSymbolsToAdd.rbegin(); it != stackSymbolsToAdd.rend(); it++) {
     if (*it == EPSILON) {
